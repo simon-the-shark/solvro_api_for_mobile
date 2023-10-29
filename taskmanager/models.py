@@ -32,7 +32,8 @@ class UserProffesion(models.Model):
 
 class Project(models.Model):
     name = models.CharField(max_length=128, blank=True, default='')
-    users = models.ManyToManyField(User, related_name='projects')
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="projects_owned")
+    other_users = models.ManyToManyField(User, related_name='projects')
 
 
 class Task(models.Model):
