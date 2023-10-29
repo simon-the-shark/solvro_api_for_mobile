@@ -36,11 +36,10 @@ class MyUser(AbstractUser):
     REQUIRED_FIELDS = []
 
 
-
 class Project(models.Model):
     name = models.CharField(max_length=128, blank=True, default='')
     owner = models.ForeignKey(MyUser, on_delete=models.CASCADE, related_name="projects_owned")
-    other_users = models.ManyToManyField(MyUser, related_name='projects')
+    other_users = models.ManyToManyField(MyUser, related_name='projects', blank=True)
 
 
 class Task(models.Model):

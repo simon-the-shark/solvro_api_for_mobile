@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import MyUser
+from .models import MyUser, Project
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -14,3 +14,9 @@ class LoginSerializer(serializers.ModelSerializer):
         model = MyUser
         fields = ('email', 'password')
         extra_kwargs = {'password': {'write_only': True}}
+
+
+class ProjectSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Project
+        fields = ['id', 'name', 'owner', 'other_users']

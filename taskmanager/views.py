@@ -3,7 +3,9 @@ from django.contrib.auth import authenticate
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from .serializers import RegisterSerializer, LoginSerializer
+from .models import Project
+from .permissions import IsOwnerOrReadOnlyProject
+from .serializers import RegisterSerializer, LoginSerializer, ProjectSerializer
 from rest_framework import serializers, viewsets, status, mixins
 
 from rest_framework.authtoken.models import Token
@@ -49,3 +51,21 @@ class LogoutViewSet(viewsets.ViewSet):
             return Response(data={"token": "Token invalidated, successful logout"}, status=status.HTTP_200_OK)
         except Token.DoesNotExist:
             return Response(data={"error": "Token not found"}, status=status.HTTP_404_NOT_FOUND)
+
+
+class ProjectViewSet(viewsets.ModelViewSet):
+    queryset = Project.objects.all()
+    serializer_class = ProjectSerializer
+    permission_classes = [IsAuthenticated, IsOwnerOrReadOnlyProject]
+
+    def get_queryset(self):
+        user = self.request.user
+        return Project.objects.filter(owner=user)
+
+    def create(self, request, *args, **kwargs):
+        request.data['owner'] = request.user.id
+        return super().create(request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        request.data['owner'] = request.user.id
+        return super().update(request, *args, **kwargs)
