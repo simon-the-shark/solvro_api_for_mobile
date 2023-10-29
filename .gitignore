@@ -1,0 +1,35 @@
+# Ignore database files
+*.sqlite3
+db.sqlite3
+
+# Ignore static files
+/static/
+
+# Ignore media files
+/media/
+
+# Ignore virtual environment
+venv/
+__pycache__
+
+# Ignore IDE-specific files and directories (e.g., for Visual Studio Code and PyCharm)
+.vscode/
+.idea/
+
+# Ignore logs
+*.log
+
+# Ignore system-specific files (e.g., for macOS)
+.DS_Store
+
+# Ignore environment configuration files
+.env
+
+# Ignore database migrations
+/migrations/
+
+# Ignore local settings
+settings_local.py
+
+# Ignore secret key file
+secret_key.txt
