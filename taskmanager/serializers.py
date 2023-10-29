@@ -5,15 +5,15 @@ from .models import MyUser, Project, Task
 class RegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = MyUser
-        fields = ('email', 'proffesion', 'password')
+        fields = ('email', 'profession', 'password')
         extra_kwargs = {'password': {'write_only': True}}
 
 
 class LoginSerializer(serializers.ModelSerializer):
     class Meta:
         model = MyUser
-        fields = ('email', 'proffesion', 'password')
-        extra_kwargs = {'password': {'write_only': True}, "proffesion": {"read_only": True}}
+        fields = ('email', 'profession', 'password')
+        extra_kwargs = {'password': {'write_only': True}, "profession": {"read_only": True}}
 
 
 class ProjectSerializer(serializers.ModelSerializer):

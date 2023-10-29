@@ -14,7 +14,7 @@ class EstimationChoices(models.IntegerChoices):
     TWENTY_ONE = 21
 
 
-class ProffesionChoices(models.TextChoices):
+class ProfessionChoices(models.TextChoices):
     FRONTEND = "FRONTEND"
     BACKEND = "BACKEND"
     DEVOPS = "DEVOPS"
@@ -30,7 +30,7 @@ class TaskStatusChoices(models.TextChoices):
 class MyUser(AbstractUser):
     username = None
     email = models.EmailField(unique=True)
-    proffesion = models.CharField(choices=ProffesionChoices.choices, max_length=20)
+    profession = models.CharField(choices=ProfessionChoices.choices, max_length=20)
     objects = UserManager()
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []

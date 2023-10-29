@@ -19,7 +19,7 @@ class LoginViewSet(viewsets.ViewSet):
         user = authenticate(email=request.data["email"], password=request.data["password"])
         if user is not None:
             token, created = Token.objects.get_or_create(user=user)
-            return Response(data={"token": token.key, "email": user.email, "profession": user.proffesion},
+            return Response(data={"token": token.key, "email": user.email, "profession": user.profession},
                             status=status.HTTP_200_OK)
         else:
             return Response(data={"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
