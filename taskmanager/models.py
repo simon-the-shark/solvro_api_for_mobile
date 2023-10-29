@@ -18,7 +18,7 @@ class ProffesionChoices(models.TextChoices):
     FRONTEND = "FRONTEND"
     BACKEND = "BACKEND"
     DEVOPS = "DEVOPS"
-    UX_UI = "UX/UI"
+    UX_UI = "UX/UI", "UX/UI"
 
 
 class TaskStatusChoices(models.TextChoices):
@@ -29,7 +29,7 @@ class TaskStatusChoices(models.TextChoices):
 
 class MyUser(AbstractUser):
     username = None
-    email = models.EmailField(unique=True, blank=False)
+    email = models.EmailField(unique=True)
     proffesion = models.CharField(choices=ProffesionChoices.choices, max_length=20)
     objects = UserManager()
     USERNAME_FIELD = 'email'
@@ -37,7 +37,7 @@ class MyUser(AbstractUser):
 
 
 class Project(models.Model):
-    name = models.CharField(max_length=128, blank=True, default='')
+    name = models.CharField(max_length=128, default='<default_name>')
     owner = models.ForeignKey(MyUser, on_delete=models.CASCADE, related_name="projects_owned")
     other_users = models.ManyToManyField(MyUser, related_name='projects', blank=True)
 
@@ -45,8 +45,9 @@ class Project(models.Model):
 class Task(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     created_by = models.ForeignKey(MyUser, on_delete=models.CASCADE, related_name="tasks_created_by")
-    assigned_to = models.ForeignKey(MyUser, on_delete=models.CASCADE, related_name="tasks_assigned")
+    assigned_to = models.ForeignKey(MyUser, on_delete=models.CASCADE, related_name="tasks_assigned", blank=True,
+                                    null=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    name = models.CharField(max_length=128, blank=True, default='')
+    name = models.CharField(max_length=128, default='<default_name>')
     estimation = models.SmallIntegerField(choices=EstimationChoices.choices, )
     status = models.CharField(choices=TaskStatusChoices.choices, max_length=20)

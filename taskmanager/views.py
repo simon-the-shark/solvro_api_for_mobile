@@ -1,18 +1,19 @@
 from django.contrib.auth import authenticate
 
+from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-
-from .models import Project
-from .permissions import IsOwnerOrReadOnlyProject
-from .serializers import RegisterSerializer, LoginSerializer, ProjectSerializer
-from rest_framework import serializers, viewsets, status, mixins
-
 from rest_framework.authtoken.models import Token
+
+from .models import Project, Task
+from .permissions import IsProjectOwnerOrReadOnly, IsPartOfThisProject
+from .serializers import RegisterSerializer, LoginSerializer, ProjectSerializer, TaskSerializer
+from rest_framework import serializers, viewsets, status, mixins
 
 
 class LoginViewSet(viewsets.ViewSet):
     serializer_class = LoginSerializer
+    http_method_names = ['post']
 
     def create(self, request):
         user = authenticate(email=request.data["email"], password=request.data["password"])
@@ -25,6 +26,7 @@ class LoginViewSet(viewsets.ViewSet):
 
 class RegisterViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
     serializer_class = RegisterSerializer
+    http_method_names = ['post']
 
     def perform_create(self, serializer):
         return serializer.save()
@@ -42,6 +44,7 @@ class RegisterViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
 class LogoutViewSet(viewsets.ViewSet):
     serializer_class = serializers.Serializer()
     permission_classes = [IsAuthenticated]
+    http_method_names = ['post']
 
     def create(self, request):
         user = request.user
@@ -56,7 +59,8 @@ class LogoutViewSet(viewsets.ViewSet):
 class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
-    permission_classes = [IsAuthenticated, IsOwnerOrReadOnlyProject]
+    permission_classes = [IsAuthenticated, IsProjectOwnerOrReadOnly]
+    http_method_names = ['get', 'post', 'put', 'delete', 'head', 'options']
 
     def get_queryset(self):
         user = self.request.user
@@ -68,4 +72,29 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
     def update(self, request, *args, **kwargs):
         request.data['owner'] = request.user.id
+        return super().update(request, *args, **kwargs)
+
+
+class TaskViewSet(viewsets.ModelViewSet):
+    queryset = Task.objects.all()
+    serializer_class = TaskSerializer
+    permission_classes = [IsAuthenticated, IsPartOfThisProject]
+    http_method_names = ['get', 'post', 'put', 'delete', 'head', 'options']
+
+    def get_queryset(self):
+        project_id = self.kwargs['project_pk']
+        return Task.objects.filter(project__id=project_id)
+
+    def create(self, request, *args, **kwargs):
+        project_id = self.kwargs['project_pk']
+        project = get_object_or_404(Project, id=project_id)
+        request.data['project'] = project.id
+        request.data['created_by'] = request.user.id
+        return super().create(request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        project_id = self.kwargs['project_pk']
+        project = get_object_or_404(Project, id=project_id)
+        request.data['project'] = project.id
+        request.data['created_by'] = request.user.id
         return super().update(request, *args, **kwargs)

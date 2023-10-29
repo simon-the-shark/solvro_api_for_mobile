@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import MyUser, Project
+from .models import MyUser, Project, Task
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -19,4 +19,10 @@ class LoginSerializer(serializers.ModelSerializer):
 class ProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Project
-        fields = ['id', 'name', 'owner', 'other_users']
+        fields = ('id', 'name', 'owner', 'other_users')
+
+
+class TaskSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Task
+        fields = ('id', 'project', 'created_by', 'assigned_to', 'created_at', 'name', 'estimation', 'status')
