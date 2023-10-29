@@ -12,8 +12,8 @@ class RegisterSerializer(serializers.ModelSerializer):
 class LoginSerializer(serializers.ModelSerializer):
     class Meta:
         model = MyUser
-        fields = ('email', 'password')
-        extra_kwargs = {'password': {'write_only': True}}
+        fields = ('email', 'proffesion', 'password')
+        extra_kwargs = {'password': {'write_only': True}, "proffesion": {"read_only": True}}
 
 
 class ProjectSerializer(serializers.ModelSerializer):
