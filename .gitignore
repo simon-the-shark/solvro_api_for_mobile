@@ -23,7 +23,7 @@ __pycache__
 .DS_Store
 
 # Ignore environment configuration files
-.env
+.env.prod
 
 # Ignore database migrations
 /migrations/
@@ -33,3 +33,10 @@ settings_local.py
 
 # Ignore secret key file
 secret_key.txt
+
+.env.dev
+
+*.dev
+
+.env.prod.db
+.env.prod
