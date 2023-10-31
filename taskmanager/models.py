@@ -28,6 +28,7 @@ class TaskStatusChoices(models.TextChoices):
 
 
 class MyUser(AbstractUser):
+    name = models.CharField(max_length=128, default='<default_name>')
     username = None
     email = models.EmailField(unique=True)
     profession = models.CharField(choices=ProfessionChoices.choices, max_length=20)
