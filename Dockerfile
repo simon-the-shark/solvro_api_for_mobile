@@ -3,7 +3,7 @@
 ###########
 
 # pull official base image
-FROM python:3.11.4-slim-buster as builder
+FROM --platform=linux/amd64 python:3.11.4-slim-buster as builder
 
 # set work directory
 WORKDIR /code
@@ -29,7 +29,7 @@ RUN pip wheel --no-cache-dir --no-deps --wheel-dir /code/wheels -r requirements.
 #########
 
 # pull official base image
-FROM python:3.11.4-slim-buster
+FROM --platform=linux/amd64 python:3.11.4-slim-buster
 
 # create directory for the app user
 RUN mkdir -p /home/app
