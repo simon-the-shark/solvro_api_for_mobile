@@ -15,6 +15,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         user.save()
         return user
 
+
 class LoginSerializer(serializers.ModelSerializer):
     class Meta:
         model = MyUser
@@ -24,9 +25,19 @@ class LoginSerializer(serializers.ModelSerializer):
 
 
 class ProjectSerializer(serializers.ModelSerializer):
+    other_users = LoginSerializer(many=True, read_only=True)
+
     class Meta:
         model = Project
         fields = ('id', 'name', 'owner', 'other_users')
+
+    # other_user_details = serializers.SerializerMethodField()
+    # def get_other_user_details(self, instance):
+    #     details = []
+    #     other_users = instance.other_users.get_queryset()
+    #     for user in other_users:
+    #         details.append({"id" : user.id, "email": user.email, "name": user.name, "profession": user.profession})
+    #     return details
 
 
 class TaskSerializer(serializers.ModelSerializer):
