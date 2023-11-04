@@ -70,11 +70,11 @@ class ProjectViewSet(viewsets.ModelViewSet):
         return Project.objects.filter(owner=user)
 
     def create(self, request, *args, **kwargs):
-        request.data['owner'] = request.user.id
+        request.data['owner_id'] = request.user.id
         return super().create(request, *args, **kwargs)
 
     def update(self, request, *args, **kwargs):
-        request.data['owner'] = request.user.id
+        request.data['owner'] = request.user
         return super().update(request, *args, **kwargs)
 
 

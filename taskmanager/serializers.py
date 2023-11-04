@@ -1,4 +1,4 @@
-from datetime import datetime
+from django.utils import timezone
 
 from rest_framework import serializers
 from .models import MyUser, Project, Task
@@ -29,17 +29,18 @@ class LoginSerializer(serializers.ModelSerializer):
 class ProjectSerializer(serializers.ModelSerializer):
     other_users = LoginSerializer(many=True, read_only=True)
     owner = LoginSerializer(read_only=True)
+    owner_id = serializers.PrimaryKeyRelatedField(queryset=MyUser.objects.all(), source='owner', write_only=True)
 
     class Meta:
         model = Project
-        fields = ('id', 'name', 'owner', 'other_users')
+        fields = ('id', 'name', 'owner', 'other_users', 'owner_id',)
 
-    def create(self, validated_data):
-        validated_data["created_at"] = datetime.now()
-        super().create(validated_data)
 
 
 class TaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
         fields = ('id', 'project', 'created_by', 'assigned_to', 'created_at', 'name', 'estimation', 'status')
+    def create(self, validated_data):
+        validated_data["created_at"] = timezone.now()
+        return super().create(validated_data)
