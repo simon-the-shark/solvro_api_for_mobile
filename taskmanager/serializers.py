@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from rest_framework import serializers
 from .models import MyUser, Project, Task
 
@@ -26,18 +28,15 @@ class LoginSerializer(serializers.ModelSerializer):
 
 class ProjectSerializer(serializers.ModelSerializer):
     other_users = LoginSerializer(many=True, read_only=True)
+    owner = LoginSerializer(read_only=True)
 
     class Meta:
         model = Project
         fields = ('id', 'name', 'owner', 'other_users')
 
-    # other_user_details = serializers.SerializerMethodField()
-    # def get_other_user_details(self, instance):
-    #     details = []
-    #     other_users = instance.other_users.get_queryset()
-    #     for user in other_users:
-    #         details.append({"id" : user.id, "email": user.email, "name": user.name, "profession": user.profession})
-    #     return details
+    def create(self, validated_data):
+        validated_data["created_at"] = datetime.now()
+        super().create(validated_data)
 
 
 class TaskSerializer(serializers.ModelSerializer):

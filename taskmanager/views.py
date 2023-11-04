@@ -4,8 +4,9 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
+from rest_framework.views import APIView
 
-from .models import Project, Task
+from .models import Project, Task, MyUser
 from .permissions import IsProjectOwnerOrReadOnly, IsPartOfThisProject
 from .serializers import RegisterSerializer, LoginSerializer, ProjectSerializer, TaskSerializer
 from rest_framework import serializers, viewsets, status, mixins
@@ -19,7 +20,8 @@ class LoginViewSet(viewsets.ViewSet):
         user = authenticate(email=request.data["email"], password=request.data["password"])
         if user is not None:
             token, created = Token.objects.get_or_create(user=user)
-            return Response(data={"token": token.key, "email": user.email, "profession": user.profession, "id": user.id, "name": user.name},
+            return Response(data={"token": token.key, "email": user.email, "profession": user.profession, "id": user.id,
+                                  "name": user.name},
                             status=status.HTTP_200_OK)
         else:
             return Response(data={"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
@@ -99,3 +101,24 @@ class TaskViewSet(viewsets.ModelViewSet):
         request.data['project'] = project.id
         request.data['created_by'] = request.user.id
         return super().update(request, *args, **kwargs)
+
+
+class AddUserToProject(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated]
+    http_method_names = ['post']
+    def create(self, request):
+        email = request.data.get('email')
+        project_id = self.kwargs['project_pk']
+        try:
+            project = Project.objects.get(pk=project_id)
+            if project.owner_id != request.user.id:
+                return Response(data={"error": "You're not project's owner"}, status=status.HTTP_403_FORBIDDEN)
+            user = MyUser.objects.get(email=email)
+            project.other_users.add(user)
+            return Response({'message': f'User {user.email} added to project {project.name}'},
+                            status=status.HTTP_201_CREATED)
+        except MyUser.DoesNotExist:
+            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+        except Project.DoesNotExist:
+            return Response({'error': 'Project not found'}, status=status.HTTP_404_NOT_FOUND)
+

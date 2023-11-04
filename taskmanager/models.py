@@ -48,7 +48,7 @@ class Task(models.Model):
     created_by = models.ForeignKey(MyUser, on_delete=models.CASCADE, related_name="tasks_created_by")
     assigned_to = models.ForeignKey(MyUser, on_delete=models.CASCADE, related_name="tasks_assigned", blank=True,
                                     null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField()
     name = models.CharField(max_length=128, default='<default_name>')
     estimation = models.SmallIntegerField(choices=EstimationChoices.choices, )
     status = models.CharField(choices=TaskStatusChoices.choices, max_length=20)
