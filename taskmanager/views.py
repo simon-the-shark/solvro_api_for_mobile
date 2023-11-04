@@ -103,22 +103,24 @@ class TaskViewSet(viewsets.ModelViewSet):
         return super().update(request, *args, **kwargs)
 
 
-class AddUserToProject(viewsets.ViewSet):
+class AddUsersToProject(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
     http_method_names = ['post']
-    def create(self, request):
-        email = request.data.get('email')
+
+    def create(self, request, *args, **kwargs):
+        emails = request.data.get('emails')
         project_id = self.kwargs['project_pk']
         try:
             project = Project.objects.get(pk=project_id)
             if project.owner_id != request.user.id:
                 return Response(data={"error": "You're not project's owner"}, status=status.HTTP_403_FORBIDDEN)
-            user = MyUser.objects.get(email=email)
-            project.other_users.add(user)
-            return Response({'message': f'User {user.email} added to project {project.name}'},
-                            status=status.HTTP_201_CREATED)
-        except MyUser.DoesNotExist:
-            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+            for email in emails:
+                try:
+                    user = MyUser.objects.get(email=email)
+                    project.other_users.add(user)
+                except MyUser.DoesNotExist:
+                    print("NOTFOUND:" + email)
+            return Response({'message': f'All good {project.name}'}, status=status.HTTP_201_CREATED)
         except Project.DoesNotExist:
             return Response({'error': 'Project not found'}, status=status.HTTP_404_NOT_FOUND)
-
