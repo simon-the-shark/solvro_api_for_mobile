@@ -1,4 +1,5 @@
 from django.contrib.auth import authenticate
+from django.db.models import Q
 
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
@@ -67,7 +68,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        return Project.objects.filter(owner=user)
+        return Project.objects.filter(Q(owner=user) | Q(other_users=user))
 
     def create(self, request, *args, **kwargs):
         request.data['owner_id'] = request.user.id
