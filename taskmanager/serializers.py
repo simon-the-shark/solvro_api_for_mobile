@@ -28,13 +28,19 @@ class LoginSerializer(serializers.ModelSerializer):
 
 class ProjectSerializer(serializers.ModelSerializer):
     other_users = LoginSerializer(many=True, read_only=True)
+    other_users_ids = serializers.ListField(child=serializers.PrimaryKeyRelatedField(queryset=MyUser.objects.all()), required=False, write_only=True)
     owner = LoginSerializer(read_only=True)
     owner_id = serializers.PrimaryKeyRelatedField(queryset=MyUser.objects.all(), source='owner', write_only=True)
 
     class Meta:
         model = Project
-        fields = ('id', 'name', 'owner', 'other_users', 'owner_id',)
+        fields = ('id', 'name', 'owner', 'other_users', 'owner_id', "other_users_ids")
 
+    def update(self, instance, validated_data):
+        other_users_data = validated_data.pop('other_users_ids', None)
+        if other_users_data is not None:
+            instance.other_users.set(other_users_data)
+        return super().update(instance, validated_data)
 
 
 class TaskSerializer(serializers.ModelSerializer):
