@@ -40,3 +40,4 @@ secret_key.txt
 
 .env.prod.db
 .env.prod
+.env.caprover
