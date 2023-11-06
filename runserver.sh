@@ -2,4 +2,4 @@
 
 python manage.py collectstatic --no-input
 python manage.py migrate
-gunicorn djcrm.wsgi --bind=0.0.0.0:80
+gunicorn solvro_api_for_mobile.wsgi --bind=0.0.0.0:80
