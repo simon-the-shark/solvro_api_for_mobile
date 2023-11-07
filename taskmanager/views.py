@@ -109,7 +109,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
     )
     def list(self, request, *args, **kwargs):
-        super().list(request, *args, **kwargs)
+        return super().list(request, *args, **kwargs)
 
     @swagger_auto_schema(
         request_body=ProjectPostSerializer,
@@ -140,7 +140,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
         operation_description="Projects details"
     )
     def retrieve(self, request, *args, **kwargs):
-        super().retrieve(request, *args, **kwargs)
+        return super().retrieve(request, *args, **kwargs)
 
 
 class TaskViewSet(viewsets.ModelViewSet):
@@ -153,6 +153,7 @@ class TaskViewSet(viewsets.ModelViewSet):
         project_id = self.kwargs['project_pk']
         return Task.objects.filter(project__id=project_id)
 
+    @swagger_auto_schema()
     def create(self, request, *args, **kwargs):
         project_id = self.kwargs['project_pk']
         project = get_object_or_404(Project, id=project_id)
@@ -160,6 +161,7 @@ class TaskViewSet(viewsets.ModelViewSet):
         request.data['created_by'] = request.user.id
         return super().create(request, *args, **kwargs)
 
+    @swagger_auto_schema()
     def update(self, request, *args, **kwargs):
         project_id = self.kwargs['project_pk']
         project = get_object_or_404(Project, id=project_id)
