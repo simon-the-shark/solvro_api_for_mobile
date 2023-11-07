@@ -118,7 +118,7 @@ class AddUsersToProject(viewsets.ViewSet):
 
             for email in emails:
                 try:
-                    user = MyUser.objects.get(email=email)
+                    user = MyUser.objects.get(email=email.lower())
                     project.other_users.add(user)
                 except MyUser.DoesNotExist:
                     print("NOTFOUND:" + email)

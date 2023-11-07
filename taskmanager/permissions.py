@@ -13,5 +13,4 @@ class IsProjectOwnerOrReadOnly(permissions.BasePermission):
 
 class IsPartOfThisProject(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
-        # Check if the user is the owner of the task
-        return (obj.created_by == request.user) or (request.user in obj.project.other_users.all())
+        return (obj.created_by == request.user) or (request.user in obj.project.other_users.all()) or (request.user == obj.project.owner)
