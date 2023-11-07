@@ -99,14 +99,13 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        return Project.objects.filter(Q(owner=user) | Q(other_users=user))
+        return Project.objects.filter(Q(owner=user) | Q(other_users=user)).distinct()
 
     @swagger_auto_schema(
         responses={
             '200': ProjectResponseSerializer(many=True),
         },
         operation_description="Returns all projects that current authed user is part of"
-
     )
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
