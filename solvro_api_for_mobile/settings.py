@@ -23,11 +23,12 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 # SECRET_KEY="django-insecure-g^3r!b2l^c%lcq7#)t6vxno&c3uot-f66k*2%^bimjuj2k38p*"
 
 DEBUG = bool(os.environ.get("DEBUG", default=0))
-# DEBUG = False
+# DEBUG = True
 # 'DJANGO_ALLOWED_HOSTS' should be a single string of hosts with a space between each.
 # For example: 'DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]'
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS").split(" ")
 CSRF_TRUSTED_ORIGINS = os.environ.get("CSRF_TRUSTED_ORIGINS").split(" ")
+# ALLOWED_HOSTS =["*"]
 # Application definition
 
 INSTALLED_APPS = [
@@ -41,6 +42,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     "corsheaders",
+    "drf_yasg"
 ]
 
 MIDDLEWARE = [
@@ -145,4 +147,14 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
     ],
+}
+
+SWAGGER_SETTINGS = {
+   'SECURITY_DEFINITIONS': {
+      'Token': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header'
+      }
+   }
 }

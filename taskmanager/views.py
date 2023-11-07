@@ -1,5 +1,6 @@
 from django.contrib.auth import authenticate
 from django.db.models import Q
+from drf_yasg.utils import swagger_auto_schema
 
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
@@ -12,11 +13,24 @@ from .permissions import IsProjectOwnerOrReadOnly, IsPartOfThisProject
 from .serializers import RegisterSerializer, LoginSerializer, ProjectSerializer, TaskSerializer
 from rest_framework import serializers, viewsets, status, mixins
 
+from .swagger_serializers import AuthResponseSerializer, ProjectResponseSerializer, ProjectPostSerializer, \
+    EmailsSerializer
+
 
 class LoginViewSet(viewsets.ViewSet):
     serializer_class = LoginSerializer
     http_method_names = ['post']
 
+    @swagger_auto_schema(
+        query_serializer=LoginSerializer,
+        responses={
+            '200': AuthResponseSerializer,
+            '401': "Unauthorized"
+        },
+        security=[],
+        operation_id='auth_login',
+        operation_description="Accepts email and password and returns token that is used for authorization in other endpoints"
+    )
     def create(self, request):
         user = authenticate(email=request.data["email"], password=request.data["password"])
         if user is not None:
@@ -35,6 +49,15 @@ class RegisterViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
     def perform_create(self, serializer):
         return serializer.save()
 
+    @swagger_auto_schema(
+        query_serializer=RegisterSerializer,
+        responses={
+            '201': AuthResponseSerializer,
+        },
+        security=[],
+        operation_id='auth_register',
+        operation_description="Creates new user and returns token that is used for authorization in other endpoints"
+    )
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -50,6 +73,14 @@ class LogoutViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
     http_method_names = ['post']
 
+    @swagger_auto_schema(
+        responses={
+            '200': "Token invalidated, successful logout",
+            '404': "Token not found",
+        },
+        operation_id='auth_logout',
+        operation_description="Deletes and invalidates users' authorization token"
+    )
     def create(self, request):
         user = request.user
         try:
@@ -70,13 +101,46 @@ class ProjectViewSet(viewsets.ModelViewSet):
         user = self.request.user
         return Project.objects.filter(Q(owner=user) | Q(other_users=user))
 
+    @swagger_auto_schema(
+        responses={
+            '200': ProjectResponseSerializer(many=True),
+        },
+        operation_description="Returns all projects that current authed user is part of"
+
+    )
+    def list(self, request, *args, **kwargs):
+        super().list(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        request_body=ProjectPostSerializer,
+        operation_description="Creates new project with current user as owner",
+        responses={
+            '200': "Success",
+        },
+    )
     def create(self, request, *args, **kwargs):
         request.data['owner_id'] = request.user.id
         return super().create(request, *args, **kwargs)
 
+    @swagger_auto_schema(
+        request_body=ProjectPostSerializer,
+        operation_description="Updates project",
+        responses={
+            '200': "Success",
+        },
+    )
     def update(self, request, *args, **kwargs):
         request.data['owner_id'] = request.user.id
         return super().update(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        responses={
+            '200': ProjectResponseSerializer,
+        },
+        operation_description="Projects details"
+    )
+    def retrieve(self, request, *args, **kwargs):
+        super().retrieve(request, *args, **kwargs)
 
 
 class TaskViewSet(viewsets.ModelViewSet):
@@ -108,6 +172,15 @@ class AddUsersToProject(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
     http_method_names = ['post']
 
+    @swagger_auto_schema(
+        request_body=EmailsSerializer,
+        responses={
+            '201': "All good, however some emails might have been skipped",
+            '404': "Project not found",
+            '403': "You're not project's owner",
+        },
+        operation_description="Accepts list of emails and add those users to project, skips emails not connected to any user"
+    )
     def create(self, request, *args, **kwargs):
         emails = request.data.get('emails')
         project_id = self.kwargs['project_pk']

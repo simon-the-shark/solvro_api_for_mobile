@@ -16,8 +16,23 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from drf_yasg import openapi
+from drf_yasg.views import get_schema_view
+from rest_framework import permissions
+
+schema_view = get_schema_view(
+   openapi.Info(
+      title="Taskmanager Demo API",
+      default_version='v1',
+      description="Simple api for mobile application for student science club recrutation. To authenticate, include token in header in such format: {'Authorization': 'Token 9054f7aa9305e012b3c2300408c3dfdf390fcddf'} Token can be retrieved on /auth/login and /auth/register endpoints.",
+      contact=openapi.Contact(email="kontakt@kowalinski.dev"),
+   ),
+   public=True,
+   permission_classes=(permissions.AllowAny,),
+)
 
 urlpatterns = [
+    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path("api/", include("taskmanager.urls")),
     path('admin/', admin.site.urls),
 ]
